@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zhangyf.video">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/ColorTranslucentTheme">
+        <activity android:name=".MainActivity"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 视频录制的Aty -->
+        <activity
+            android:name="com.zyf.vc.ui.RecorderActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"></activity>
+
+        <!-- 视频播放的Aty -->
+        <activity
+            android:name="com.zyf.vc.ui.PlayVideoActiviy"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            ></activity>
+
+    </application>
+
+</manifest>
