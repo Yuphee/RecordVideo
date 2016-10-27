@@ -31,6 +31,8 @@ import com.zyf.vc.utils.SystemVersionUtil;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -74,6 +76,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     private RecorderActivity activity;
     private int currentCameraId;
+    private boolean haveSize;
 
     public CameraPreview(Context context) {
         super(context);
@@ -383,6 +386,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
      * 设置相机参数
      */
     public void setupCamera(int cameraId,Camera mCamera) {
+        haveSize = false;
         currentCameraId = cameraId;
 //        List<Camera.Size> previewSizes = mCamera.getParameters().getSupportedPreviewSizes();
 //        Log.e("zyf","size:"+previewSizes.size());
@@ -423,8 +427,17 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                         && cur.height >= PreviewHeight) {
                     PreviewWidth = cur.width;
                     PreviewHeight = cur.height;
+                    haveSize = true;
                     break;
                 }
+            }
+            if(!haveSize){// 如果未找到和屏幕适配的size则取最大一个
+                Collections.sort(sizeList, new PreviewOrder());
+                for (int i = 0; i < sizeList.size(); i++) {
+                    Log.e("zyf","sort:"+sizeList.get(i).height);
+                }
+                PreviewWidth = sizeList.get(0).width;
+                PreviewHeight = sizeList.get(0).height;
             }
         }
 
@@ -437,7 +450,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public boolean manualFocus(Camera camera, Camera.AutoFocusCallback cb, List<Camera.Area> focusAreas
-    ,List<Camera.Area> mFocusAreas) {
+            ,List<Camera.Area> mFocusAreas) {
         //判断系统是否是4.0以上的版本
         if (camera != null && focusAreas != null && SystemVersionUtil.hasICS()) {
             try {
@@ -490,6 +503,16 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             return min;
         }
         return x;
+    }
+
+    // preview size 排序
+    public class PreviewOrder implements Comparator<Camera.Size> {
+
+        @Override
+        public int compare(Camera.Size lhs, Camera.Size rhs) {
+            return rhs.height - lhs.height;
+        }
+
     }
 
 }
