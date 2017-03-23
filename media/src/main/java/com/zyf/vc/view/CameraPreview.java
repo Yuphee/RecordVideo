@@ -402,9 +402,18 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         // 问题：小米手机录制视频支持的Size和相机预览支持的Size不一样（其他类似的手机可能
         // 也存在这个问题），若设置了这个标志位，会使预览效果拉伸，但是开始录制视频，预览
         // 又恢复正常，暂时不知道是为什么
-        parameters.setRecordingHint(true);
-        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-        parameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
+//        parameters.setRecordingHint(true);
+        List<String> focusModes = parameters.getSupportedFocusModes();
+        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)){
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+        }else if(focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)){
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+        }
+        List<String> whiteBalance = parameters.getSupportedWhiteBalance();
+        if (whiteBalance.contains(Camera.Parameters.WHITE_BALANCE_AUTO)){
+            parameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
+        }
+
 //        parameters.setFocusAreas(null);
         parameters.setMeteringAreas(null);
 
@@ -440,13 +449,14 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 PreviewHeight = sizeList.get(0).height;
             }
         }
-
 //        mVideoSize = CameraHelper.getCameraPreviewSizeForVideo(cameraId, mCamera);
 //        parameters.setPreviewSize(mVideoSize.width, mVideoSize.height);
         parameters.setPreviewSize(PreviewWidth, PreviewHeight); //获得摄像区域的大小
         Log.e("zyf", "PreviewCurrentSize,width: " + PreviewWidth + " height: " + PreviewHeight);
         mCamera.setParameters(parameters);
-        mCamera.cancelAutoFocus();
+        if(!focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)){
+            mCamera.cancelAutoFocus();
+        }
     }
 
     public boolean manualFocus(Camera camera, Camera.AutoFocusCallback cb, List<Camera.Area> focusAreas
@@ -510,7 +520,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
         @Override
         public int compare(Camera.Size lhs, Camera.Size rhs) {
-            return rhs.height - lhs.height;
+            return rhs.height*rhs.width - lhs.height*lhs.width;
         }
 
     }
